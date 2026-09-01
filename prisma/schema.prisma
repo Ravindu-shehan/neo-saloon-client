@@ -14,4 +14,16 @@ datasource db {
 
 model User{
   id String @id @default(uuid())
+  email String @unique
+  phone String? @unique
+  firstName String
+  lastName String
+  password String
+  role String @default("customer")
+  status String @default("active") //activated, deactivated, suspended
+  createdAt DateTime @default(now())
+  lastLogin DateTime? @default(now())
+  privileges String[] @default(["read"]) //create_product, update_product, delete_product, read_product, create_user, update_user, delete_user, read_user
+
+
 }
