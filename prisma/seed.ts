@@ -11,7 +11,14 @@ const prisma = new PrismaClient({
 });
 
 const userData: Prisma.UserCreateInput[] = [
-  
+    {
+        email: "admin@saloon.lk",
+        firstName: "Admin",
+        lastName: "Neo",
+        password: "$2a$12$E0aQQTA8fhVAPFsT.YA/2ugghOF99nTx362fR.oCCiqj8jhLzi/zq",
+        role: "ADMIN",
+        privileges: []
+    }
   
 ];
 
