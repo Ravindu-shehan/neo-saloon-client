@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        message: "Email is required",
+        message: "Email is required"
       }
     )
   }
@@ -42,17 +42,24 @@ export async function POST(request: NextRequest) {
 
   if(isPasswordValid) {
 
-    return NextResponse.json(
-      {
-        message: "Login successful",
-      }
-    )
+    const secretText = process.env.JOSE_SECRET;
+    const secret = new TextEncoder().encode(secretText)
+
+    const token = await new jose.SignJWT({
+       email: user.email,
+       firstName: user.firstName,
+       lastName: user.lastName,
+       role: user.role,
+       privileges: user.privileges,
+       }).setProtectedHeader({alg: "HS256"}).sign(secret)
+
+       
 
 }else {
 
     return NextResponse.json(
       {
-        message: "Invalid password",
+        message: "Invalid password"
       }
     )
   }
