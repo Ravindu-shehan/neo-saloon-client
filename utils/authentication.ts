@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import * as jose from "jose";
 
-async function GetUser(request: NextRequest){
+export async function getUser(request: NextRequest){
 
      const loginToken = request.cookies.get("login-token")?.value;
     
