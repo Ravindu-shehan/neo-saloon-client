@@ -8,13 +8,20 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  console.log(body);
-
   if(body.email == null) {
 
     return NextResponse.json(
       {
         message: "Email is required"
+      }
+    ), {status: 400}
+  }
+
+  if(body.password == null) {
+
+    return NextResponse.json(
+      {
+        message: "Password is required"
       }
     ), {status: 400}
   }
@@ -27,7 +34,7 @@ export async function POST(request: NextRequest) {
   });
   
 
-  console.log(user);
+  
 
   if(user == null) {
        
@@ -39,13 +46,34 @@ export async function POST(request: NextRequest) {
       {status: 404}
     );
   }
+  
+
+  if(user.status == "ACTIVE") {
+
+    return NextResponse.json(
+      {
+        message: "User is not active",
+      },
+      {status: 403}
+    );
+  }
 
   const isPasswordValid = await compare(body.password, user.password);
 
   if(isPasswordValid) {
-    
 
-    const secretText = process.env.JOSE_SECRET;
+    await prisma.user.update(
+      {
+        where: {
+          id: user.id,
+        },
+        data: {
+          lastLogin: new Date(),
+        }
+      }
+    );
+
+    const secretText = process.env.JOSE_SECRET || "TestSecret22@";
 
     const secret = new TextEncoder().encode(secretText)
 
