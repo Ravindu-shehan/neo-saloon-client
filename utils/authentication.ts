@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import * as jose from "jose";
+import { RequestUserType } from "@/types/requestUser";
 
-export async function getUser(request: NextRequest){
+export async function getUser(request: NextRequest): Promise<RequestUserType | null> {
 
      const loginToken = request.cookies.get("login-token")?.value;
     
@@ -10,12 +11,14 @@ export async function getUser(request: NextRequest){
         const secret = new TextEncoder().encode(secretText);
 
         try{
-            const user = await jose.jwtVerify(
+            const tokenData = await jose.jwtVerify(
             loginToken || "",
             secret
         );
 
-        return user.payload
+        const user  = tokenData.payload as unknown as RequestUserType;
+
+        return user
 
         }catch{
 
@@ -25,9 +28,9 @@ export async function getUser(request: NextRequest){
         
 }
 
-export async function isPrivileged(request: NextRequest, privilege: string) {
+export async function isPrivileged(request: NextRequest, privilege: string) : Promise<boolean> {
     
-    const user = await getUser(request);
+    const user: RequestUserType | null = await getUser(request);
 
     if (user==null) {
         return false;
