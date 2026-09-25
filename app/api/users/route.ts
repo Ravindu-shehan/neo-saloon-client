@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { getUser, isPrivileged } from "@/utils/authentication";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
+import { use } from "react";
 
 export async function GET(request: NextRequest) {
 
@@ -16,9 +17,38 @@ export async function GET(request: NextRequest) {
         )
     }
       
-    
+    const pageNumberInString = request.nextUrl.searchParams.get("pageNumber") || "1"
 
-    const users = await prisma.user.findMany();
+    const pageSizeInString = request.nextUrl.searchParams.get("pageSize")|| "10"
+
+    const pageNumber = parseInt(pageNumberInString)
+    const pageSize = parseInt(pageSizeInString)
+
+    const userCount = await prisma.user.count()
+
+    console.log(
+        {
+            pageNumber : pageNumber,
+            pageSize : pageSize,
+            userCount : userCount
+        }
+    )
+
+    const users = await prisma.user.findMany({
+        select:{
+            id : true,
+            email : true,
+            phone : true,
+            firstName : true,
+            lastName : true,
+            password : false,
+            role : true,
+            status : true,
+            createdAt : true,
+            lastLogin : true,
+            privileges : true
+        }
+    });
 
     return NextResponse.json(
         {
