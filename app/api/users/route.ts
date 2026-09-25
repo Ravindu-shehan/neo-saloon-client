@@ -115,5 +115,26 @@ return NextResponse.json(
 }
 
 export async function PUT(request : NextRequest){
-    
-}
+
+    const id = request.nextUrl.searchParams.get("id")
+
+    const requestedUser = await getUser(request)
+
+    if(requestedUser==null){
+        return NextResponse.json({
+            message : "You are not logged in"
+        },
+        {status: 401}
+    )
+    }
+
+    if(requestedUser.id != id){
+        //user is trying to update their own account, allow it
+
+    }else{
+        //trying to update another user's details
+    }
+
+
+
+    }
