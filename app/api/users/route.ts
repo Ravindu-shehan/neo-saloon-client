@@ -180,46 +180,8 @@ export async function PUT(request : NextRequest){
     )
     }
 
-    const body = await request.json()
-
-    if(requestedUser.id == id){
-        
-        const user = await prisma.user.findUnique({
-            where : {
-                id : id
-            }
-        })
-        
-        if(user == null){
-            return NextResponse.json(
-                {
-                    message : "User not found"
-                },
-                {
-                    status : 404
-                }
-            )
-        }
-
-        await prisma.user.update({
-
-            where : {
-                id : id
-            },
-            data : {
-                email : body.email || user.email, 
-                firstName : body.firstName || user.firstName,
-                lastName : body.lastName || user.lastName,
-                phone : body.phone || user.phone,
-                profileImage : body.profileImage || user.profileImage // should be included in the token
-            }
-        })
-
-        return NextResponse.json(
-            {
-                message : "User updated successfully"
-            }
-        )
+    if(requestedUser.id != id){
+        //user is trying to update their own account, allow it
 
     }else{
         const havePrivilege = await isPrivileged(request, "users:edit")
