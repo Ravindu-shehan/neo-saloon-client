@@ -180,8 +180,39 @@ export async function PUT(request : NextRequest){
     )
     }
 
-    if(requestedUser.id != id){
-        //user is trying to update their own account, allow it
+    const body = await request.json()
+
+    if(requestedUser.id == id){
+        
+        const user = await prisma.user.findUnique({
+            where : {
+                id : id
+            }
+        })
+        
+        if(user == null){
+            return NextResponse.json(
+                {
+                    message : "User not found"
+                },
+                {
+                    status : 404
+                }
+            )
+        }
+
+        await prisma.user.update({
+
+            where : {
+                id : id
+            },
+            data : {
+                email : body.email || user.email, 
+                firstName : body.firstName || user.firstName,
+                lastName : body.lastName || user.lastName,
+                phone : body.phone || user.phone,
+            }
+        })
 
     }else{
         //trying to update another user's details
