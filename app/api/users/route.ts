@@ -234,6 +234,23 @@ export async function PUT(request : NextRequest){
                 }
             )
         }
+
+        const user = await prisma.user.findUnique({
+            where : {
+                id : id || "00000"
+            }
+        })
+
+        if(user == null){
+            return NextResponse.json(
+                {
+                    message : "User not found"
+                },
+                {
+                    status : 404
+                }
+            )
+        }
     }
 
 
