@@ -2,31 +2,34 @@ import prisma from "@/lib/prisma";
 import { getUser, isPrivileged } from "@/utils/authentication";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
-import { use } from "react";
 
-export async function GET(request: NextRequest) {
+export async function GET(request : NextRequest){
 
-    const havePrivilegedUser = await isPrivileged(request, "users:read");
+    const havePrivilege = await isPrivileged(request, "users:read")
 
-    if(!havePrivilegedUser){
+
+
+    if(!havePrivilege){
         return NextResponse.json(
             {
-                message: "you do not have the privilege to view users"
+                message : "You do not have the privilege to view users"
             },
-            {status: 403}
+            {
+                status : 403
+            }
         )
     }
-      
-    const pageNumberInString = request.nextUrl.searchParams.get("pageNumber") || "1"
 
-    const pageSizeInString = request.nextUrl.searchParams.get("pageSize")|| "10"
+    const pageNumberInString = request.nextUrl.searchParams.get("pageNumber")||"1"
+
+    const pageSizeInString = request.nextUrl.searchParams.get("pageSize")||"10"
 
     const pageNumber = parseInt(pageNumberInString)
-    const pageSize = parseInt(pageSizeInString)
+    const pageSize = parseInt(pageSizeInString) //50
 
-    const userCount = await prisma.user.count()
-
-    const totalPages = Math.ceil( userCount / pageSize)
+    const userCount = await prisma.user.count() //999 
+    
+    const totalPages = Math.ceil( userCount / pageSize )
 
     if(pageNumber > totalPages){
         return NextResponse.json(
@@ -41,128 +44,130 @@ export async function GET(request: NextRequest) {
     }
 
     const users = await prisma.user.findMany({
+        select: {
         skip : (pageNumber - 1) * pageSize,
         take : pageSize,
         select : {
-            id : true,
-            email : true,
-            phone : true,
-            firstName : true,
-            lastName : true,
+            id :true,
+            email :true,
+            phone :true,
+            firstName :true,
+            lastName :true,
             password : false,
-            role : true,
-            status : true,
+            role :true,
+            status :true,
             createdAt : true,
             lastLogin : true,
             privileges : true
         }
     })
+
     return NextResponse.json(
         {
             message : "Users fetched successfully",
+            users : users
             users : users,
             pagination : {
                 pageNumber : pageNumber,
                 pageSize : pageSize,
-                totalPage : totalPages,
+                totalPages : totalPages,
                 totalCount : userCount
             }
         }
     )
-
-   
-
-    return NextResponse.json(
-        {
-            message: "Users fetched successfully",
-            users: users
-        },
-        {status: 200}
-    )
-
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request : NextRequest){
 
-    //email. firstName, lastName, password, phone(optional)
+    //email , firstName, lastName, password, phone(optional)
 
-    const body = await request.json();
+    const body = await request.json()
 
-    if(body.email==null){
+    if(body.email == null){
         return NextResponse.json(
             {
-                message: "Email is required"
+                message : "Email is required"
             },
-            {status: 400}
+            {
+                status : 422
+            }
         )
     }
 
-    if(body.firstName==null){
+    if(body.firstName == null){
         return NextResponse.json(
             {
-                message: "First name is required"
+                message : "First name is required"
             },
-            {status: 400}
+            {
+                status : 422
+            }
         )
     }
 
-    if(body.lastName==null){
+    if(body.lastName == null){
         return NextResponse.json(
             {
-                message: "Last name is required"
+                message : "Last name is required"
             },
-            {status: 400}
+            {
+                status : 422
+            }
         )
     }
 
-    if(body.password==null){
+    if(body.password == null){
         return NextResponse.json(
             {
-                message: "Password is required"
+                message : "Password is required"
             },
-            {status: 400}
+            {
+                status : 422
+            }
         )
     }
 
     const existingUser = await prisma.user.findUnique(
         {
-        where: {
-            email: body.email
-        }
-    }
-)
-if(existingUser!=null){
-    return NextResponse.json(
-        {
-            message : "User with this email already exists"
-        },
-        {
-            status : 409
+            where : {
+                email : body.email
+            }
         }
     )
-}
 
-const passwordHash = await bcrypt.hash(body.password, 12) // 12 mean is salting rounds
-
-await prisma.user.create({
-    data :{
-        email : body.email,
-        firstName : body.firstName,
-        lastName : body.lastName,
-        password : passwordHash,
-        phone: body.phone,
-
+    if(existingUser != null){
+        return NextResponse.json(
+            {
+                message : "User with this email already exists"
+            },
+            {
+                status : 409
+            }
+        )
     }
-})
 
-return NextResponse.json(
-    {
-        message : "User created successfully"
-    },
-    {
-        status : 201
-    }
-)
+    const passwordHash = await bcrypt.hash(body.password, 12)
+
+    await prisma.user.create({
+        data :{
+            email : body.email,
+            firstName : body.firstName,
+            lastName : body.lastName,
+            password : passwordHash,
+            phone : body.phone,
+        }
+    })
+
+    //SELECT 
+
+    return NextResponse.json(
+        {
+            message : "User created successfully"
+        },
+        {
+            status : 201
+        }
+    )
 
 }
 
@@ -172,19 +177,67 @@ export async function PUT(request : NextRequest){
 
     const requestedUser = await getUser(request)
 
-    if(requestedUser==null){
-        return NextResponse.json({
-            message : "You are not logged in"
-        },
-        {status: 401}
-    )
+    if(requestedUser == null){
+        return NextResponse.json(
+            {
+                message : "You are not logged in"
+            },
+            {
+                status : 401
+            }
+        )
     }
 
-    if(requestedUser.id != id){
-        //user is trying to update their own account, allow it
+    const body = await request.json()
+
+    if(requestedUser.id == id){
+        // user is trying to update their own account, allow it
+
+        //never allow users to update their own role, status, privileges
+
+        const user = await prisma.user.findUnique({
+            where : {
+                id : id
+            }
+        })
+
+        if(user == null){
+            return NextResponse.json(
+                {
+                    message : "User not found"
+                },
+                {
+                    status : 404
+                }
+            )
+        }
+
+        await prisma.user.update({
+
+            where : {
+                id : id
+            },
+            data : {
+                email : body.email || user.email,
+                firstName : body.firstName || user.firstName,
+                lastName : body.lastName || user.lastName,
+                phone : body.phone || user.phone,
+                profileImage : body.profileImage || user.profileImage // should be included in the token
+            }
+
+        })
+
+        return NextResponse.json(
+            {
+                message : "User updated successfully"
+            }
+        )
 
     }else{
+        // user is trying to update someone else's account, check if they have the privilege
+       
         const havePrivilege = await isPrivileged(request, "users:edit")
+
 
         if(!havePrivilege){
             return NextResponse.json(
@@ -199,7 +252,7 @@ export async function PUT(request : NextRequest){
 
         const user = await prisma.user.findUnique({
             where : {
-                id : id || "00000"
+                id : id||"000"
             }
         })
 
@@ -213,8 +266,29 @@ export async function PUT(request : NextRequest){
                 }
             )
         }
+        
+        await prisma.user.update({
+            where : {
+                id : id||"000"
+            },
+            data : {
+                email : body.email || user.email,
+                firstName : body.firstName || user.firstName,
+                lastName : body.lastName || user.lastName,
+                phone : body.phone || user.phone,
+                profileImage : body.profileImage || user.profileImage,
+                role : body.role || user.role,
+                status : body.status || user.status,
+                privileges : body.privileges || user.privileges
+            }
+        })
+
+        return NextResponse.json(
+            {
+                message : "User updated successfully"
+            }
+        )
+        
     }
 
-
-
-    }
+}
