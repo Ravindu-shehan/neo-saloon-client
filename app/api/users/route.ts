@@ -44,7 +44,7 @@ export async function GET(request : NextRequest){
     }
 
     const users = await prisma.user.findMany({
-        select: {
+        
         skip : (pageNumber - 1) * pageSize,
         take : pageSize,
         select : {
@@ -65,7 +65,6 @@ export async function GET(request : NextRequest){
     return NextResponse.json(
         {
             message : "Users fetched successfully",
-            users : users
             users : users,
             pagination : {
                 pageNumber : pageNumber,
