@@ -2,10 +2,12 @@ import {z} from "zod"
 
 const UserRegistrationRequestSchema = z.object(
     {
-    email: z.string(),
-    firstName: z.string(),
-    lastName: z.string(),
-    password: z.string(),
+    email : z.email(),
+    firstName : z.string().max(20),
+    lastName : z.string().max(20),
+    password : z.string(),
+    Privileges : z.never(),
+    phone : z.string().optional()
 }
 )
 
