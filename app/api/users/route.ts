@@ -85,7 +85,7 @@ export async function POST(request : NextRequest){
     const body = await request.json()
 
     try{
-        const parseBody = UserRegistrationRequestSchema.safeParse(body)
+        const parseBody = UserRegistrationRequestSchema.parse(body)
     }catch(error){
         return NextResponse.json(
             {
