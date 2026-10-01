@@ -1,4 +1,6 @@
 import prisma from "@/lib/prisma";
+import { UserRegistrationRequestSchema } from "@/types/dto/UserRegistrationRequest";
+import type { UserRegistrationRequest} from "@/types/dto/UserRegistrationRequest";
 import { getUser, isPrivileged } from "@/utils/authentication";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
@@ -82,46 +84,15 @@ export async function POST(request : NextRequest){
 
     const body = await request.json()
 
-    if(body.email == null){
+    try{
+        const parseBody = UserRegistrationRequestSchema.safeParse(body)
+    }catch(error){
         return NextResponse.json(
             {
-                message : "Email is required"
+                message : "Invalid request body"
             },
             {
-                status : 422
-            }
-        )
-    }
-
-    if(body.firstName == null){
-        return NextResponse.json(
-            {
-                message : "First name is required"
-            },
-            {
-                status : 422
-            }
-        )
-    }
-
-    if(body.lastName == null){
-        return NextResponse.json(
-            {
-                message : "Last name is required"
-            },
-            {
-                status : 422
-            }
-        )
-    }
-
-    if(body.password == null){
-        return NextResponse.json(
-            {
-                message : "Password is required"
-            },
-            {
-                status : 422
+                status : 400
             }
         )
     }
