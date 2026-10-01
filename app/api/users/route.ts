@@ -86,6 +86,9 @@ export async function POST(request : NextRequest){
 
     try{
         const parseBody = UserRegistrationRequestSchema.parse(body)
+
+        console.log(parseBody)
+        
     }catch(error){
         return NextResponse.json(
             {
