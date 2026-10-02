@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { UserRegistrationRequestSchema } from "@/types/dto/UserRegistrationRequest";
 import { UserSelfUpdateRequestSchema } from "@/types/dto/UserSelfUpdateRequest";
-import { UserUpdateByAdminRequestSchema } from "@/types/dto/UserUpdateByAdminRequest";
+import { UserUpdateByAdminRequestSchema  } from "@/types/dto/UserUpdateByAdminRequest";
 import { getUser, isPrivileged } from "@/utils/authentication";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
@@ -88,7 +88,7 @@ export async function POST(request : NextRequest){
     //validate the body using zod
 
     try{
-<<<<<<< HEAD
+
 
         const parsedBody = UserRegistrationRequestSchema.parse(body)
 
@@ -123,21 +123,12 @@ export async function POST(request : NextRequest){
             }
         })
 
-=======
+
         const parseBody = UserRegistrationRequestSchema.parse(body)
 
         console.log(parseBody)
         
-    }catch(error){
->>>>>>> c86fbe9c3b862555ec5ed17a005f9cf7f277c199
-        return NextResponse.json(
-            {
-                message : "User created successfully"
-            },
-            {
-                status : 201
-            }
-        )
+    
     }catch(error){
         
         if(error instanceof z.ZodError){
