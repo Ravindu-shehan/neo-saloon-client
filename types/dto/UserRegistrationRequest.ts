@@ -6,7 +6,7 @@ const UserRegistrationRequestSchema = z.object(
     firstName : z.string().max(20),
     lastName : z.string().max(20),
     password : z.string(),
-    Privileges : z.never(),
+    Privileges : z.never().optional(),
     phone : z.string().optional()
 }
 )
