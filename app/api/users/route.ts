@@ -88,6 +88,7 @@ export async function POST(request : NextRequest){
     //validate the body using zod
 
     try{
+<<<<<<< HEAD
 
         const parsedBody = UserRegistrationRequestSchema.parse(body)
 
@@ -122,6 +123,13 @@ export async function POST(request : NextRequest){
             }
         })
 
+=======
+        const parseBody = UserRegistrationRequestSchema.parse(body)
+
+        console.log(parseBody)
+        
+    }catch(error){
+>>>>>>> c86fbe9c3b862555ec5ed17a005f9cf7f277c199
         return NextResponse.json(
             {
                 message : "User created successfully"
