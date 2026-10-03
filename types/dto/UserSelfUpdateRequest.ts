@@ -2,6 +2,7 @@ import z from "zod"
 
  const UserSelfUpdateRequestSchema = z.object(
     {
+        id : z.never().optional(),
         email : z.email().optional(),
         firstName : z.string().max(20).optional(),
         lastName : z.string().max(20).optional(),

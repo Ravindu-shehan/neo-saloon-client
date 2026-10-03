@@ -28,3 +28,21 @@ model User{
 
 
 }
+
+enum ProductStatus {
+  active
+  inactive
+  discontinued
+}
+
+model Product{
+  id String @id @default(uuid())
+  sku String @unique
+  name String
+  description String
+  price Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+  status ProductStatus @default(active)
+  image String? 
+}
