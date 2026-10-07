@@ -20,3 +20,8 @@ const ProductCreationRequestSchema = z.object({
     })
 )
 })
+
+
+export default ProductCreationRequestSchema
+
+export type ProductCreationRequest = z.infer<typeof ProductCreationRequestSchema>
