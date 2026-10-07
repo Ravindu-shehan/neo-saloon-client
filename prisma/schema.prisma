@@ -62,9 +62,9 @@ model Media{
   id String @id @default(uuid())
   url String
   type MediaType
-  productId String?
-  userId String?
-  product Product? @relation(fields: [productId], references: [id])
+  productId String
+  userId String
+  product Product @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime? @updatedAt
 
