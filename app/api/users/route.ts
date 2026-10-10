@@ -64,7 +64,7 @@ export async function GET(request : NextRequest){
     return NextResponse.json(
         {
             message : "Users fetched successfully",
-            users : users,
+            data : users,
             pagination : {
                 pageNumber : params.pageNumber,
                 pageSize : params.pageSize,
