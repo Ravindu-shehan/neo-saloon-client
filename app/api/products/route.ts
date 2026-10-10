@@ -112,8 +112,12 @@ export async function POST(request: NextRequest) {
 
 
     
+    }else{
+        return NextResponse.json({message :  "You do not have the required privilege to add products"})
     }
 
 }
+
+
 
 
