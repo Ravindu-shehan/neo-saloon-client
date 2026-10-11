@@ -4,6 +4,7 @@ import ProductCreationRequestSchema from '@/types/dto/ProductCreationRequest';
 import z from 'zod';
 import prisma from '@/lib/prisma';
 import getPaginationInfo from '@/utils/pageInfoRetrieval';
+import { ProductStatus } from '@/app/generated/prisma/browser';
 
 export async function GET(request: NextRequest) {
 
@@ -118,6 +119,54 @@ export async function POST(request: NextRequest) {
 
 }
 
+export async function DELETE(request : NextRequest){
 
+    const hasPrivilege = await isPrivileged(request, "products: delete")
+
+    if(!hasPrivilege){
+        return NextResponse.json(
+            {
+                message : "You do not have the required privilege to delete products"
+            }
+        )
+    }
+
+    const id = request.nextUrl.searchParams.get("id")
+
+    if(id == null){
+        return NextResponse.json(
+            {
+                message : "Product id is required"
+            },
+            {
+                status : 400
+            }
+        )
+    }
+
+    const existingProduct = await prisma.product.findUnique({
+        where : {
+            id : id
+        }
+    })
+
+    if(existingProduct == null){
+        return NextResponse.json({message : "Product not found"}, {status : 404})
+    }
+
+    await prisma.product.update(
+        {
+            where : {
+                id : id
+            },
+            data : {
+
+                status : ProductStatus.discontinued
+
+            }
+        }
+    )
+
+}
 
 
