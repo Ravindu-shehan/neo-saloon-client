@@ -1,7 +1,8 @@
+import { MediaType, ProductStatus } from "@/app/generated/prisma/browser";
 import z from "zod";
 
-const ProductStatusEnum = z.enum(["active", "inactive", "discontinued"]);
-const MediaTypeEnum = z.enum(["image", "video", "document"]);
+const ProductStatusEnum = z.enum(ProductStatus);
+const MediaTypeEnum = z.enum(MediaType);
 
 const ProductCreationRequestSchema = z.object({
     sku: z.string().max(50, "SKU must be at most 50 characters"),

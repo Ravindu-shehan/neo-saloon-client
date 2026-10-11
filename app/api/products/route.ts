@@ -188,4 +188,53 @@ export async function DELETE(request : NextRequest){
 
 }
 
+export async function PUT(request : NextRequest){
+
+    const hasPrivilege = await isPrivileged(request , "products: update")
+
+    if(!hasPrivilege){
+        return NextResponse.json({message : "You do not have the required privilege to update a product"}, {status : 403})
+    }
+
+    const id = request.nextUrl.searchParams.get("id")
+
+    if(id == null){
+        return NextResponse.json({message : "Product id is required"}, {status : 400})
+    }
+
+    try{
+        const body = await request.json()
+
+        const parseBody = ProductCreationRequestSchema.parse(body)
+
+        const existingProduct = await prisma.product.findUnique({
+            where : {
+                id : id
+            }
+        })
+
+        if(existingProduct == null){
+            return NextResponse.json({message : "Product not found"}, {status : 404})
+        }
+
+        await prisma.product.update({
+            where : {
+                id : id
+            },
+            data : {
+                sku : parseBody.sku,
+            }
+        })
+
+    }catch(error){
+        return NextResponse.json(
+            {
+                message : "Internal server error"
+            },
+            {
+                status : 500 
+            }
+        )
+    }
+}
 
