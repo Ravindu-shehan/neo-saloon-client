@@ -143,7 +143,7 @@ export async function DELETE(request : NextRequest){
             }
         )
     }
-
+     try{
     const existingProduct = await prisma.product.findUnique({
         where : {
             id : id
@@ -166,6 +166,25 @@ export async function DELETE(request : NextRequest){
             }
         }
     )
+
+    return NextResponse.json(
+        {
+            message : "Product deleted successfully"
+        },
+        {
+            status : 200
+        }
+    )
+}catch(error){
+    return NextResponse.json(
+        {
+            message : "Internal server error"
+        },
+        {
+            status : 500 
+        }
+    )
+}
 
 }
 
