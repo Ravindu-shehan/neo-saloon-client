@@ -222,7 +222,16 @@ export async function PUT(request : NextRequest){
                 id : id
             },
             data : {
-                sku : parseBody.sku,
+                sku : parseBody.sku || existingProduct.sku,
+                name : parseBody.name || existingProduct.name,
+                altNames : parseBody.altNames || existingProduct.altNames,
+                description : parseBody.description || existingProduct.description,
+                stock : parseBody.stock || existingProduct.stock,
+                status : parseBody.status || existingProduct.status,
+                price : parseBody.price || existingProduct.price,
+                compareAt : parseBody.compareAt || existingProduct.compareAt,
+                brand : parseBody.brand || existingProduct.brand,
+                model : parseBody.model || existingProduct.model,
             }
         })
 

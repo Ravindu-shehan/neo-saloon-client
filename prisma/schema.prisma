@@ -40,7 +40,8 @@ model Product{
   id String @id @default(uuid())
   sku String @unique
   name String
-  description String
+  altNames String[]
+  description String @default("")
   stock Int @default(0)
   price Float
   compareAt Float?
@@ -57,7 +58,7 @@ model Product{
 enum MediaType {
   image
   video
-  document
+  
 }
 
 
