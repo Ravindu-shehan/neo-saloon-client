@@ -5,6 +5,7 @@ import z from 'zod';
 import prisma from '@/lib/prisma';
 import getPaginationInfo from '@/utils/pageInfoRetrieval';
 import { ProductStatus } from '@/app/generated/prisma/browser';
+import { MediaArraySchema } from '@/types/dto/ProductUpdateRequest';
 
 export async function GET(request: NextRequest) {
 
@@ -233,7 +234,31 @@ export async function PUT(request : NextRequest){
                 brand : parseBody.brand || existingProduct.brand,
                 model : parseBody.model || existingProduct.model,
             }
+        }
+    )
+
+    if(parseBody.media != null && parseBody.media.length > 0){
+
+        const parseMediaArray = MediaArraySchema.parse(parseBody.media)
+
+
+        await prisma.media.deleteMany({
+            where : {
+                productId : id
+            }
         })
+
+        await prisma.product.update({
+            where : {
+                id : id
+            },
+            data : {
+                media : {
+                    create : parseMediaArray
+                }
+            }
+        })
+    }
 
     }catch(error){
         return NextResponse.json(

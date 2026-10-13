@@ -4,6 +4,14 @@ import z from "zod";
 const ProductStatusEnum = z.enum(ProductStatus);
 const MediaTypeEnum = z.enum(MediaType);
 
+export const MediaArraySchema = z.array(
+    z.object({
+        url : z.url(),
+        type : MediaTypeEnum
+        
+    })
+)
+
 const ProductUpdateRequestSchema = z.object({
     sku: z.string().max(50, "SKU must be at most 50 characters").optional(),
     name: z.string().max(100, "Name must be at least 2 characters").optional(),
@@ -15,11 +23,7 @@ const ProductUpdateRequestSchema = z.object({
     compareAt : z.number().min(0).optional(),
     brand : z.string().max(100).optional(),
     model : z.string().max(100).optional(),
-    media : z.array(z.object({
-        url : z.url(),
-        type : MediaTypeEnum
-    })
-)
+    media : MediaArraySchema.optional()
 }).optional()
 
 
