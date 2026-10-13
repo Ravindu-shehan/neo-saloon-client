@@ -11,7 +11,19 @@ export async function GET(request: NextRequest) {
 
    const params = getPaginationInfo(request)
 
-    const totalProducts = await prisma.product.count()
+   const hasPrivilege = await isPrivileged(request, "products:read")
+
+   if(hasPrivilege){
+   
+    const totalProducts = await prisma.product.count(
+        {
+            where : {
+                NOT : {
+                    status : ProductStatus.discontinued
+                }
+            }
+        }
+    )
 
     const totalPages = Math.ceil(totalProducts / params.pageSize)
 
@@ -20,6 +32,11 @@ export async function GET(request: NextRequest) {
         take : params.pageSize,
         include : {
             media : true
+        },
+        where : {
+            NOT : {
+                status : ProductStatus.discontinued
+            }
         }
     })
 
@@ -37,6 +54,41 @@ export async function GET(request: NextRequest) {
         }
     )
     
+}else{
+
+    const totalProducts = await prisma.product.count(
+        {
+            where : {
+                status : ProductStatus.active
+            }
+        }
+    )
+    const totalPages = Math.ceil(totalProducts / params.pageSize)
+
+    const products = await prisma.product.findMany({
+        skip : (params.pageNumber - 1)* params.pageSize,
+        take : params.pageSize,
+        include : {
+            media : true
+        },
+        where : {
+            status : ProductStatus.active
+        }
+    })
+
+    return NextResponse.json(
+        {
+            message : "products fetched successfully",
+            products : products,
+            pagination : {
+                pageNumber : params.pageNumber,
+                pageSize : params.pageSize,
+                totalPages : totalPages,
+                totalCount : totalProducts
+            }
+        }
+    )
+}
    
 
     
@@ -155,6 +207,10 @@ export async function DELETE(request : NextRequest){
         return NextResponse.json({message : "Product not found"}, {status : 404})
     }
 
+    if(existingProduct.status == ProductStatus.discontinued){
+        return NextResponse.json({message : "Product not found"}, {status : 400})
+    }
+
     await prisma.product.update(
         {
             where : {
@@ -191,7 +247,7 @@ export async function DELETE(request : NextRequest){
 
 export async function PUT(request : NextRequest){
 
-    const hasPrivilege = await isPrivileged(request , "products: update")
+    const hasPrivilege = await isPrivileged(request , "products: edit")
 
     if(!hasPrivilege){
         return NextResponse.json({message : "You do not have the required privilege to update a product"}, {status : 403})
@@ -260,7 +316,27 @@ export async function PUT(request : NextRequest){
         })
     }
 
+    return NextResponse.json(
+        {
+            message : "Product updated successfully"
+        },
+        {
+            status : 200
+        }
+    )
+
     }catch(error){
+
+        if(error instanceof z.ZodError){
+            return NextResponse.json(
+                {
+                    message : error.issues[0]?.message ?? "Invalid input",
+                },
+                {
+                    status : 400
+                }
+            )
+        }
         return NextResponse.json(
             {
                 message : "Internal server error"
