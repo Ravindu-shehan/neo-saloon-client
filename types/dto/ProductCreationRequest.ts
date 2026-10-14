@@ -18,7 +18,7 @@ const ProductCreationRequestSchema = z.object({
     media : z.array(z.object({
         url : z.url(),
         type : MediaTypeEnum
-    })
+    }).optional()
 )
 })
 
