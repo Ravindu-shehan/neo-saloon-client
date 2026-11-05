@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-
+const allowedOrigins = ['http://localhost:3001',]
 const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
@@ -9,12 +9,13 @@ const corsHeaders = {
 
 export function proxy(request: NextRequest) {
 
-  // Handle preflight requests
+  const origin = request.headers.get('origin') ?? '';
+  const isAllowed = allowedOrigins.includes(origin);
   if (request.method === 'OPTIONS') {
     return new NextResponse(null, {
       status: 204,
       headers: {
-        ...( { 'Access-Control-Allow-Origin': "*" }),
+        ...(isAllowed ? { 'Access-Control-Allow-Origin': origin } : { 'Access-Control-Allow-Origin': "*" }),
         ...corsHeaders,
       },
     });
