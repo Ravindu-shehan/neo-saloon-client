@@ -123,7 +123,9 @@ export async function POST(request: NextRequest) {
                 brand : parseBody.brand,
                 model : parseBody.model,
                 media: {
-                 create : parseBody.media 
+                      create : parseBody.media?.filter(
+                          (media): media is NonNullable<typeof media> => media !== undefined
+                      )
                }
                 
             }
